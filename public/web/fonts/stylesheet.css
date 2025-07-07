@@ -1,0 +1,66 @@
+@font-face {
+    font-family: 'MetropolisLight';
+    src: url('Metropolis-Light.woff2') format('woff2'),
+        url('Metropolis-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MetropolisBlack';
+    src: url('Metropolis-Black.woff2') format('woff2'),
+        url('Metropolis-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MetropolisMedium';
+    src: url('Metropolis-Medium.woff2') format('woff2'),
+        url('Metropolis-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Metropolis';
+    src: url('Metropolis-Regular.woff2') format('woff2'),
+        url('Metropolis-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MetropolisBold';
+    src: url('Metropolis-Bold.woff2') format('woff2'),
+        url('Metropolis-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MetropolisExtra';
+    src: url('Metropolis-ExtraBold.woff2') format('woff2'),
+        url('Metropolis-ExtraBold.woff') format('woff');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MetropolisSemi';
+    src: url('Metropolis-SemiBold.woff2') format('woff2'),
+        url('Metropolis-SemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'News706 BT';
+    src: url('News706BT-RomanC.woff2') format('woff2'),
+        url('News706BT-RomanC.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+
