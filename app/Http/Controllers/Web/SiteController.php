@@ -77,10 +77,11 @@ class SiteController extends Controller
 
     public function index()
     {
-        return redirect()->route('web.page', 'home');
+        $locale = app()->getLocale();
+        return redirect()->route('web.page', ['lang' => $locale, 'slug' => 'home']);
     }
 
-    public function page($slug, Request $request)
+    public function page($lang, $slug, Request $request)
     {
         $slug_safe = Helper::validate_input_text($slug);
 
@@ -93,6 +94,7 @@ class SiteController extends Controller
         $data = $query->first();
 
         if (!$data) {
+            dd("Page not found: " . $slug_safe);
             return abort(404);
         }
 

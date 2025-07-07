@@ -651,6 +651,9 @@
             <!-- /.section_content_element -->
         @endforeach
     </section>
+    <section>
+        <h1>{{ __('messages.welcome') }}</h1>
+    </section>
 @endsection
 
 @section('body-script')

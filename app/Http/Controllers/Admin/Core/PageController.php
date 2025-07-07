@@ -54,11 +54,14 @@ class PageController extends Controller
                     $object_id = Helper::generate_token($data->id);
                 }
 
+                // get the locale for translations
+                $locale = app()->getLocale();
+
                 $wording_edit = ucwords(lang('edit', $this->translations));
                 $html = '<a href="' . route('admin.page.edit', $object_id) . '" class="btn btn-xs btn-primary" title="' . $wording_edit . '"><i class="fa fa-pencil"></i>&nbsp; ' . $wording_edit . '</a>';
 
                 $wording_view = ucwords(lang('preview page', $this->translations));
-                $html .= '<a href="' . url($data->slug) . '?preview=' . date('YmdHis') . '" target="_blank" class="btn btn-xs btn-warning" title="' . $wording_view . '"><i class="fa fa-external-link"></i>&nbsp; ' . $wording_view . '</a>';
+                $html .= '<a href="' . url($locale, $data->slug) . '?preview=' . date('YmdHis') . '" target="_blank" class="btn btn-xs btn-warning" title="' . $wording_view . '"><i class="fa fa-external-link"></i>&nbsp; ' . $wording_view . '</a>';
 
                 $wording_delete = ucwords(lang('delete', $this->translations));
                 $html .= '<form action="' . route('admin.page.delete') . '" method="POST" onsubmit="return confirm(\'' . lang('Are you sure to delete this #item?', $this->translations, ['#item' => $this->item]) . '\');" style="display: inline"> ' . csrf_field() . ' <input type="hidden" name="id" value="' . $object_id . '">

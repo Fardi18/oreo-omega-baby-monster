@@ -4,6 +4,7 @@
     $navigation_menu = HelperWeb::get_nav_menu();
     $company_info = HelperWeb::get_company_info();
     $social_media = HelperWeb::get_social_media();
+    $locale = app()->getLocale();
 @endphp
 
 <!-- FOOTER -->
@@ -52,7 +53,7 @@
                 <div class="latest_wrapper" id="subscribe_form">
                     <strong>Keep up to date with the latest news</strong>
                     <div class="row_clear latest_box">
-                        <form action="{{ route('web.home') }}" method="POST">
+                        <form action="{{ route('web.home', $locale) }}" method="POST">
                             @csrf
                             <input type="text" name="email" placeholder="Enter your email address here" required>
                             @if ($errors->has('email_address'))

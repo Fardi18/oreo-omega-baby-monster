@@ -64,6 +64,12 @@ use App\Http\Controllers\HelperController;
 
 Route::get('/files/{file}', [HelperController::class, 'access_file'])->middleware('file.permission')->name('access_file');
 
+// Default redirect from "/" to "/en"
+Route::get('/', function () {
+    return redirect('/en');
+});
+
 foreach (File::allFiles(__DIR__ . '/routelist') as $route_file) {
     require $route_file->getPathname();
 }
+

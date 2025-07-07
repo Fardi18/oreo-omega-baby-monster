@@ -3,6 +3,7 @@
     use App\Libraries\HelperWeb;
 
     $navigation_menu = HelperWeb::get_nav_menu();
+    $locale = app()->getLocale();
 @endphp
 
 <!-- HEADER -->
@@ -13,7 +14,7 @@
         </p>
     </a>
     <div class="header_box">
-        <h1><a href="{{ route('web.home') }}" id="logo">{!! $global_config->app_name !!}</a></h1>
+        <h1><a href="{{ route('web.home', $locale) }}" id="logo">{!! $global_config->app_name !!}</a></h1>
         <nav id="menu">
             <ul>
                 @php
