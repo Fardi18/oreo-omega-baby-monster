@@ -166,6 +166,17 @@
                                 $config->default = 'checked';
                                 echo set_input_form('switch', 'status', ucfirst(lang('status', $translations)), $data, $errors, false, $config);
 
+                                $config = new \stdClass();
+                                $config->attribute = 'onchange="setup_market()"';
+                                echo set_input_form('switch', 'is_need_market', ucfirst(lang('is need market?', $translations)), $data, $errors, false, $config);
+
+                                $config = new \stdClass();
+                                $config->placeholder = '- '.ucwords(lang('please choose one', $translations)).' -';
+                                $config->defined_data = $markets;
+                                $config->field_value = 'id';
+                                $config->field_text = 'country_name';
+                                echo set_input_form('select2', 'market_id', ucwords(lang('market', $translations)), $data, $errors, false, $config);
+
                                 // only show when edit
                                 if ($data) {
                                     $time_ago = Helper::time_ago(strtotime($data->created_at), lang('ago', $translations), Helper::get_periods($translations));
@@ -252,6 +263,32 @@
     @include('_vendors.autosize.script')
 
     <script>
+        // Pastikan setup awal
+        setup_market();
+
+        // Tangani event change secara manual untuk Switchery
+        var isNeedMarketElem = document.querySelector('#is_need_market');
+        if (isNeedMarketElem) {
+            isNeedMarketElem.onchange = function () {
+                setup_market();
+            };
+        }
+
+        function setup_market() {
+            var is_need_market = $('#is_need_market').is(':checked');
+
+            // Reset market field
+            $('#market_id').prop('required', false);
+            $('.vinput_market_id').hide();
+
+            if (is_need_market) {
+                $('#market_id').prop('required', true);
+                $('.vinput_market_id').show();
+            } else {
+                $('#market_id').val('').trigger('change');
+            }
+        }
+
         function validate_form_new() {
             {{-- only validate when add new --}}
             @if (!$data)

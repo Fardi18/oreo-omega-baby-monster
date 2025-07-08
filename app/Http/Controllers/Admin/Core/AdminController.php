@@ -545,7 +545,11 @@ class AdminController extends Controller
 
         $groups = Helper::get_admin_groups();
 
-        return view('admin.core.administrator.form', compact('groups'));
+        $markets = country::where('status', 1)
+            ->orderBy('country_name')
+            ->get();
+
+        return view('admin.core.administrator.form', compact('groups', 'markets'));
     }
 
     /**
@@ -585,6 +589,8 @@ class AdminController extends Controller
                 'regex:/[?!@#$%^&*~`_+=:;.,"><\'-]/',   // must contain a special character
             ],
             'group' => 'required|integer',
+            'is_need_market' => 'nullable',
+            'market_id' => 'required_if:is_need_market,1|integer',
         ];
         $message = [
             'required' => ':attribute ' . lang('should not be empty', $this->translations),
@@ -594,6 +600,7 @@ class AdminController extends Controller
             'min' => ':attribute ' . lang('must be at least #item characters', $this->translations, ['#item' => '8']),
             'regex' => ':attribute ' . lang('format is invalid', $this->translations),
             'integer' => ':attribute ' . lang('must be an integer', $this->translations),
+            'required_if' => ':attribute ' . lang('must be chosen if #item is checked', $this->translations, ['#item' => ucwords(lang('need market', $this->translations))]),
         ];
         $names = [
             'firstname' => ucwords(lang('firstname', $this->translations)),
@@ -603,6 +610,8 @@ class AdminController extends Controller
             'password' => ucwords(lang('password', $this->translations)),
             'group' => ucwords(lang('group', $this->translations)),
             'phone' => ucwords(lang('phone', $this->translations)),
+            'is_need_market' => ucwords(lang('need market', $this->translations)),
+            'market_id' => ucwords(lang('market', $this->translations)),
         ];
         $this->validate($request, $validation, $message, $names);
 
@@ -657,6 +666,19 @@ class AdminController extends Controller
                     ->with('error', lang('#item must be chosen at least one', $this->translations, ['#item' => $names['group']]));
             }
 
+            // market
+            $is_need_market = (int) $request->is_need_market;
+
+            $market_id = null;
+            if($request->market_id) {
+                $market_id = (int) $request->market_id;
+                if (!$market_id) {
+                    return back()
+                        ->withInput()
+                        ->with('error', lang('#item must be chosen at least one', $this->translations, ['#item' => $names['market_id']]));
+                }
+            }
+
             // SAVE THE DATA
             $data = new admin();
             $data->firstname = Helper::generate_token($firstname);
@@ -673,6 +695,14 @@ class AdminController extends Controller
             // initialize google 2fa secret key
             $google2fa = app('pragmarx.google2fa');
             $data->google2fa_secret = $google2fa->generateSecretKey();
+
+            // market
+            $data->is_need_market = $is_need_market;
+            if ($is_need_market) {
+                $data->market_id = $market_id;
+            } else {
+                $data->market_id = null;
+            }
 
             $data->save();
 
@@ -794,7 +824,11 @@ class AdminController extends Controller
 
         $groups = Helper::get_admin_groups();
 
-        return view('admin.core.administrator.form', compact('data', 'raw_id', 'groups'));
+        $markets = country::where('status', 1)
+            ->orderBy('country_name')
+            ->get();
+
+        return view('admin.core.administrator.form', compact('data', 'raw_id', 'groups', 'markets'));
     }
 
     /**
@@ -822,11 +856,14 @@ class AdminController extends Controller
             'username' => 'required',
             'email' => 'required|email',
             'group' => 'required|integer',
+            'is_need_market' => 'nullable',
+            'market_id' => 'required_if:is_need_market,1|integer',
         ];
         $message = [
             'required' => ':attribute ' . lang('should not be empty', $this->translations),
             'email' => ':attribute ' . lang('must be a valid email address', $this->translations),
             'integer' => ':attribute ' . lang('must be an integer', $this->translations),
+            'required_if' => ':attribute ' . lang('must be chosen if #item is checked', $this->translations, ['#item' => ucwords(lang('need market', $this->translations))]),
         ];
         $names = [
             'firstname' => ucwords(lang('firstname', $this->translations)),
@@ -836,6 +873,8 @@ class AdminController extends Controller
             'password' => ucwords(lang('password', $this->translations)),
             'group' => ucwords(lang('group', $this->translations)),
             'phone' => ucwords(lang('phone', $this->translations)),
+            'is_need_market' => ucwords(lang('need market', $this->translations)),
+            'market_id' => ucwords(lang('market', $this->translations)),
         ];
         $this->validate($request, $validation, $message, $names);
 
@@ -951,6 +990,19 @@ class AdminController extends Controller
                     ->with('error', lang('#item must be chosen at least one', $this->translations, ['#item' => $names['group']]));
             }
 
+            // market
+            $is_need_market = (int) $request->is_need_market;
+
+            $market_id = null;
+            if($request->market_id) {
+                $market_id = (int) $request->market_id;
+                if (!$market_id) {
+                    return back()
+                        ->withInput()
+                        ->with('error', lang('#item must be chosen at least one', $this->translations, ['#item' => $names['market_id']]));
+                }
+            }
+
             // SAVE THE DATA
             $data->firstname = Helper::generate_token($firstname);
             $data->lastname = Helper::generate_token($lastname);
@@ -966,6 +1018,14 @@ class AdminController extends Controller
             if (empty($data->google2fa_secret)) {
                 $google2fa = app('pragmarx.google2fa');
                 $data->google2fa_secret = $google2fa->generateSecretKey();
+            }
+
+            // market
+            $data->is_need_market = $is_need_market;
+            if ($is_need_market) {
+                $data->market_id = $market_id;
+            } else {
+                $data->market_id = null;
             }
 
             $data->save();
