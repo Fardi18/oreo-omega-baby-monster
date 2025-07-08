@@ -7,21 +7,45 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
+// Models
+use App\Models\country;
+
 class SetLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $request->segment(1); // ex: "jp"
-        $supportedLocales = ['en', 'id', 'th', 'vi'];
+        $marketAlias = strtolower($request->segment(1));
+        $locale = strtolower($request->segment(2));
 
-        if (!in_array($locale, $supportedLocales)) {
-            $segments = $request->segments();
-            $segments[0] = 'en'; // fallback default
+        if ($marketAlias === 'en') {
+            // Treat "en" as a default virtual market
+            $country = new \stdClass();
+            $country->id = 0;
+            $country->country_alias = 'EN';
+            $country->country_name = 'Default Market';
+        } else {
+            $country = country::where('country_alias', strtoupper($marketAlias))->first();
 
-            return redirect()->to('/' . implode('/', $segments) . '?invalid_lang=1');
+            if (!$country) {
+                return redirect('/en/en')->with('error', 'Invalid market');
+            }
+        }
+
+        // Validasi bahasa sesuai market
+        $validLanguages = config('market')[$marketAlias] ?? ['en'];
+
+        if (!in_array($locale, $validLanguages)) {
+            $locale = $validLanguages[0]; // fallback ke default
+            return redirect("/$marketAlias/$locale")->with('error', 'Invalid language for this market');
         }
 
         App::setLocale($locale);
+
+        // inject data ke request (opsional)
+        $request->attributes->add([
+            'market' => $country,
+            'locale' => $locale
+        ]);
 
         return $next($request);
     }

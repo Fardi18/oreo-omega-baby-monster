@@ -64,6 +64,9 @@
         <link rel="stylesheet" type="text/css" href="{{ asset('web/css/slick-theme.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ asset('web/css/select2.min.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ asset('web/css/main.css') }}?v=1.6">
+
+        {{-- Custom CSS --}}
+        @yield('style')
         
         <!-- Custom Script -->
         <script src="{{ asset('js/thehelper.js') }}?v=1.0"></script>
@@ -83,13 +86,13 @@
         @yield('body-script')
         <div class="wrapper">
             {{-- HEADER --}}
-            @include('_template_web.header')
+            {{-- @include('_template_web.header') --}}
 
             {{-- CONTENT --}}
             @yield('content')
 
             {{-- FOOTER --}}
-            @include('_template_web.footer')
+            {{-- @include('_template_web.footer') --}}
         </div>
         
         <script>

@@ -14,6 +14,7 @@ use App\Models\nav_menu;
 use App\Models\office;
 use App\Models\social_media;
 use App\Models\faq;
+use App\Models\country;
 
 class SiteController extends Controller
 {
@@ -111,5 +112,13 @@ class SiteController extends Controller
         $data = $this->get_faq();
 
         return view('web.faq', compact('data'));
+    }
+
+    public function landing_page(){
+        $markets = country::where('status', 1)
+            ->orderBy('country_name', 'asc')
+            ->get();
+
+        return view('web.landing_page', compact('markets'));
     }
 }

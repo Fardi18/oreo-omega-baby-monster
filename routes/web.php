@@ -66,7 +66,7 @@ Route::get('/files/{file}', [HelperController::class, 'access_file'])->middlewar
 
 // Default redirect from "/" to "/en"
 Route::get('/', function () {
-    return redirect('/en');
+    return redirect('/en/en');
 });
 
 foreach (File::allFiles(__DIR__ . '/routelist') as $route_file) {
