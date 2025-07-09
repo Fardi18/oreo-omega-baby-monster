@@ -264,6 +264,28 @@ class PreLaunchController extends Controller
                 ->withErrors(['id' => 'User not found']);
         }
 
+        // check if the user is already verified
+        if ($user->verified_at) {
+            return redirect()
+                ->route('web.success_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                    'id' => $raw_id
+                ])
+                ->withErrors(['id' => 'User already verified']);
+        }
+
+        // check if the user is active
+        if ($user->is_active) {
+            return redirect()
+                ->route('web.success_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                    'id' => $raw_id
+                ])
+                ->withErrors(['id' => 'User already active']);
+        }
+
         $rules = [
             'otp' => 'required|digits:4',
         ];
@@ -318,11 +340,11 @@ class PreLaunchController extends Controller
             $otp->save();
 
             return redirect()
-                ->route('web.landing_page', [
+                ->route('web.success_page', [
                     'market' => $market,
                     'lang' => $lang,
-                ])
-                ->with('success', 'Your account has been verified successfully!');
+                    'id' => $raw_id
+                ]);
         } catch (\Exception $e) {
             return redirect()
                 ->back()
@@ -391,5 +413,39 @@ class PreLaunchController extends Controller
                 ->back()
                 ->withErrors(['error' => 'Failed to resend OTP. Please try again.']);
         }
+    }
+
+    public function success_page($market, $lang, $id, Request $request)
+    {
+        $raw_id = $id;
+
+        if (env('CRYPTOGRAPHY_MODE', false)) {
+            $id = Helper::validate_token($id);
+        }
+
+        if ((int) $id < 1) {
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => 'Invalid ID']);
+        }
+
+        // Check if the user exists and is verified
+        $user = user::where('id', $id)
+            ->whereNotNull('verified_at')
+            ->first();
+
+        if (!$user) {
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => 'Invalid access']);
+        }
+
+        return view('web.success_page', compact('user', 'market', 'lang', 'raw_id'));
     }
 }

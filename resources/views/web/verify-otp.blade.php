@@ -121,7 +121,7 @@
                 @csrf
                 <div style="position: relative;">
                     <input type="number" placeholder="OTP Code" name="otp" id="otp" class="otp-input"
-                        maxlength="4" required>
+                        maxlength="4" required value="{{ old('otp') }}">
                 </div>
 
                 <button type="submit" class="submit-btn">Submit</button>

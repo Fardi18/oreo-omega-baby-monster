@@ -39,4 +39,7 @@ Route::group([
     Route::get('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_page'])->name('web.verify_otp_page');
     Route::post('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_process'])->name('web.verify_otp_process');
     Route::post('/resend-otp/{id}', [PreLaunchController::class, 'resend_otp'])->name('web.resend_otp');
+
+    // Success Page
+    Route::get('/success/{id}', [PreLaunchController::class, 'success_page'])->name('web.success_page');
 });
