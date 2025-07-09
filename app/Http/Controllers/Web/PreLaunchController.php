@@ -16,8 +16,97 @@ use Illuminate\Support\Facades\Validator;
 
 class PreLaunchController extends Controller
 {
+    private function hasForbiddenContent($text)
+    {
+        // List of forbidden words/patterns
+        $forbidden = [
+            'fuck',
+            'shit',
+            'admin',
+            'root',
+            'hack',
+            'system',
+            'administrator',
+            '<script',
+            'javascript:',
+            'alert(',
+            'document.cookie',
+            '../',
+            '..\\',
+            '/etc/',
+            'eval('
+        ];
+
+        $text = strtolower($text);
+        foreach ($forbidden as $word) {
+            if (strpos($text, strtolower($word)) !== false) {
+                return true;
+            }
+        }
+
+        // Check for SQL injection attempts
+        $sql_patterns = [
+            '/union\s+select/i',
+            '/select.*from/i',
+            '/insert\s+into/i',
+            '/delete\s+from/i',
+            '/drop\s+table/i',
+            '/update.*set/i',
+            '/\d+\s*=\s*\d+/'
+        ];
+
+        foreach ($sql_patterns as $pattern) {
+            if (preg_match($pattern, $text)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function blockUserContact($email = null, $phone = null)
+    {
+        DB::beginTransaction();
+        try {
+            if ($email) {
+                $blocked_email = new \App\Models\blocked_email();
+                $blocked_email->email = $email;
+                $blocked_email->reason = 'Forbidden content in registration';
+                $blocked_email->blocked_at = now();
+                $blocked_email->save();
+            }
+
+            if ($phone) {
+                $blocked_phone = new \App\Models\blocked_phone();
+                $blocked_phone->phone_number = $phone;
+                $blocked_phone->reason = 'Forbidden content in registration';
+                $blocked_phone->blocked_at = now();
+                $blocked_phone->save();
+            }
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return false;
+        }
+    }
+
     public function register_pre_launch(Request $request)
     {
+        // Check for forbidden content in names
+        if ($this->hasForbiddenContent($request->first_name) || $this->hasForbiddenContent($request->last_name)) {
+            // Block the email and phone if provided
+            if ($request->email || $request->phone_number) {
+                $this->blockUserContact($request->email, $request->phone_number);
+            }
+
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Invalid input detected.'])
+                ->withInput();
+        }
+
         $rules = [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -26,6 +115,27 @@ class PreLaunchController extends Controller
             'date_of_birth' => 'nullable|date',
             'market_id' => 'required',
         ];
+
+        // Check for blocked email/phone
+        if ($request->email) {
+            $blocked_email = \App\Models\blocked_email::where('email', $request->email)->first();
+            if ($blocked_email) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['email' => 'This email address has been blocked.'])
+                    ->withInput();
+            }
+        }
+
+        if ($request->phone_number) {
+            $blocked_phone = \App\Models\blocked_phone::where('phone_number', $request->phone_number)->first();
+            if ($blocked_phone) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['phone_number' => 'This phone number has been blocked.'])
+                    ->withInput();
+            }
+        }
 
         $message = [
             'first_name.required' => 'First name is required.',

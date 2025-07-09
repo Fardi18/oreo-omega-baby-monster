@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class user extends Model
+class blocked_phone extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'users';
+    protected $table = 'blocked_phones';
+
+    protected $dates = [
+        'blocked_at'
+    ];
 }

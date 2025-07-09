@@ -26,7 +26,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(false)->index();
             $table->dateTime('verified_at')->nullable();
             $table->timestamps();
-            $table->dateTime('deleted_at')->nullable();
+            $table->softDeletes();
         });
     }
 

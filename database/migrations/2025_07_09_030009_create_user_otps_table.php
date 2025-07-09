@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTime('phone_verified_at')->nullable();
             $table->dateTime('email_verified_at')->nullable();
             $table->timestamps();
-            $table->dateTime('deleted_at')->nullable();
+            $table->softDeletes();
         });
     }
 
