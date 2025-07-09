@@ -25,13 +25,18 @@ Route::group([
     'prefix' => '{market}/{lang}',
     'middleware' => ['web', \App\Http\Middleware\SetLocale::class]
 ], function () {
-    Route::get('/homie', [SiteController::class, 'index'])->name('web.home');
-    Route::get('/faq', [SiteController::class, 'faq'])->name('web.faq');
-    Route::get('/{slug}', [SiteController::class, 'page'])->name('web.page');
+    // Route::get('/homie', [SiteController::class, 'index'])->name('web.home');
+    // Route::get('/faq', [SiteController::class, 'faq'])->name('web.faq');
+    // Route::get('/{slug}', [SiteController::class, 'page'])->name('web.page');
 
     // Landing Page
     Route::get('/', [SiteController::class, 'landing_page'])->name('web.landing_page');
-    
+
     // Pre-Launch
     Route::post('/pre-launch', [PreLaunchController::class, 'register_pre_launch'])->name('web.register_pre_launch');
+
+    // OTP
+    Route::get('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_page'])->name('web.verify_otp_page');
+    Route::post('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_process'])->name('web.verify_otp_process');
+    Route::post('/resend-otp/{id}', [PreLaunchController::class, 'resend_otp'])->name('web.resend_otp');
 });

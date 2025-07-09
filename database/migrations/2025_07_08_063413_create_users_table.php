@@ -24,6 +24,7 @@ return new class extends Migration
             $table->enum('type', ['pre-launch', 'post-launch'])->default('pre-launch')->index();
             $table->text('notes')->nullable();
             $table->boolean('is_active')->default(false)->index();
+            $table->dateTime('verified_at')->nullable();
             $table->timestamps();
             $table->dateTime('deleted_at')->nullable();
         });

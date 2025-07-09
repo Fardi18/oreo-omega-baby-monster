@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Validator;
 
 class PreLaunchController extends Controller
 {
-    public function register_pre_launch(Request $request){
+    public function register_pre_launch(Request $request)
+    {
         $rules = [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -42,7 +43,7 @@ class PreLaunchController extends Controller
             'email' => 'Email',
             'phone_number' => 'Phone Number',
             'date_of_birth' => 'Date of Birth',
-            'market_id' => 'Market',  
+            'market_id' => 'Market',
         ];
 
         $validator = Validator::make($request->all(), $rules, $message, $names);
@@ -57,7 +58,7 @@ class PreLaunchController extends Controller
         try {
             // Laravel validation
             $first_name = Helper::validate_input_text($request->first_name);
-            if(!$first_name) {
+            if (!$first_name) {
                 return redirect()
                     ->back()
                     ->withErrors(['first_name' => 'First name is required.'])
@@ -111,7 +112,7 @@ class PreLaunchController extends Controller
             }
 
             // check if the dob > now
-            if($date_of_birth && $date_of_birth > $now) {
+            if ($date_of_birth && $date_of_birth > $now) {
                 return redirect()
                     ->back()
                     ->withErrors(['date_of_birth' => 'Date of birth must be in the past.'])
@@ -119,7 +120,7 @@ class PreLaunchController extends Controller
             }
 
             // check if the user age < 18
-            if($date_of_birth && $date_of_birth) {
+            if ($date_of_birth && $date_of_birth) {
                 $age = date_diff(date_create($date_of_birth), date_create($now))->y;
                 if ($age < 18) {
                     return redirect()
@@ -132,9 +133,9 @@ class PreLaunchController extends Controller
             // Check if market exists
             $market_id = (int) $request->market_id;
             $market_alias = null;
-            if($market_id) {
+            if ($market_id) {
                 $market = country::where('id', $market_id)->first();
-                if(!$market) {
+                if (!$market) {
                     return redirect()
                         ->back()
                         ->withErrors(['market_id' => 'Market not Found'])
@@ -155,17 +156,45 @@ class PreLaunchController extends Controller
             $user->market_alias = $market_alias;
             $user->save();
 
+            // if user successfully created, create the user otp with 4 digits
+            if ($user) {
+                $otp = new \App\Models\user_otp();
+                $otp->user_id = $user->id;
+                $otp->otp = rand(1000, 9999);
+                if ($user->market_alias == 'KH') {
+                    $otp->type = 'phone';
+                } else {
+                    $otp->type = 'email';
+                }
+                $otp->expires_at = now()->addMinutes((int) env('OTP_EXPIRATION', 5));
+                $otp->save();
+            }
+
+            // TODO SEND THE OTP TO PHONE OR EMAIL
+
             DB::commit();
 
             // SUCCESS
             $market = strtolower($request->segment(1));
             $locale = strtolower(app()->getLocale());
 
-            return redirect()->route('web.home', [
-                'market' => $market,
-                'lang' => $locale,
-            ]);
+            $redirect_message = '';
+            if ($otp->type == 'phone') {
+                $redirect_message = 'Check your message and enter the code below';
+            } else {
+                $redirect_message = 'Check your email and enter the code below';
+            }
 
+            // generate the object id for the user
+            $object_id = Helper::generate_token($user->id);
+
+            return redirect()
+                ->route('web.verify_otp_page', [
+                    'id' => $object_id,
+                    'market' => $market,
+                    'lang' => $locale,
+                ])
+                ->with('success', $redirect_message);
         } catch (\Exception $e) {
             DB::rollBack();
             $error_message = $e->getMessage();
@@ -173,6 +202,194 @@ class PreLaunchController extends Controller
                 'status' => 'error',
                 'message' => $error_message,
             ], 500);
+        }
+    }
+
+    public function verify_otp_page($market, $lang, $id, Request $request)
+    {
+        $raw_id = $id;
+
+        if (env('CRYPTOGRAPHY_MODE', false)) {
+            $id = Helper::validate_token($id);
+        }
+
+        if ((int) $id < 1) {
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => 'Invalid ID']);
+        }
+
+        // Check if the user exists
+        $user = user::where('id', $id)->first();
+        if (!$user) {
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => 'User not found']);
+        }
+
+        return view('web.verify-otp', compact('user', 'market', 'lang', 'raw_id'));
+    }
+
+    public function verify_otp_process($market, $lang, $id, Request $request)
+    {
+        $raw_id = $id;
+
+        if (env('CRYPTOGRAPHY_MODE', false)) {
+            $id = Helper::validate_token($id);
+        }
+
+        if ((int) $id < 1) {
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => 'Invalid ID']);
+        }
+
+        // Check if the user exists
+        $user = user::where('id', $id)->first();
+        if (!$user) {
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => 'User not found']);
+        }
+
+        $rules = [
+            'otp' => 'required|digits:4',
+        ];
+
+        $message = [
+            'otp.required' => 'OTP is required.',
+            'otp.digits' => 'OTP must be 4 digits.',
+        ];
+
+        $names = [
+            'otp' => 'OTP',
+        ];
+        $validator = Validator::make($request->all(), $rules, $message, $names);
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            // Check if the OTP is valid
+            $otp = \App\Models\user_otp::where('user_id', $id)
+                ->where('otp', $request->otp)
+                ->first();
+
+            if (!$otp) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['otp' => 'Invalid OTP'])
+                    ->withInput();
+            }
+
+            if ($otp->expires_at < now()) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['otp' => 'OTP has been expired'])
+                    ->withInput();
+            }
+
+            // Mark the user as verified
+            $user->verified_at = date('Y-m-d H:i:s');
+            $user->is_active = 1;
+            $user->save();
+
+            // update the otp data
+            if ($otp->type == 'phone') {
+                $otp->phone_verified_at = date('Y-m-d H:i:s');
+            } else {
+                $otp->email_verified_at = date('Y-m-d H:i:s');
+            }
+            $otp->save();
+
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->with('success', 'Your account has been verified successfully!');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'An error occurred while verifying the OTP.'])
+                ->withInput();
+        }
+    }
+
+    public function resend_otp($market, $lang, $id, Request $request)
+    {
+        $raw_id = $id;
+
+        if (env('CRYPTOGRAPHY_MODE', false)) {
+            $id = Helper::validate_token($id);
+        }
+
+        if ((int) $id < 1) {
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => 'Invalid ID']);
+        }
+
+        // Check if the user exists
+        $user = user::where('id', $id)->first();
+        if (!$user) {
+            return redirect()
+                ->route('web.landing_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => 'User not found']);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // create new OTP
+            $otp = new \App\Models\user_otp();
+            $otp->user_id = $user->id;
+            $otp->otp = rand(1000, 9999);
+            if ($user->market_alias == 'KH') {
+                $otp->type = 'phone';
+            } else {
+                $otp->type = 'email';
+            }
+            $otp->expires_at = now()->addMinutes((int) env('OTP_EXPIRATION', 5));
+            $otp->save();
+
+            // TODO: SEND THE OTP TO PHONE OR EMAIL
+
+            DB::commit();
+
+            $message = $otp->type == 'phone'
+                ? 'New OTP has been sent to your phone'
+                : 'New OTP has been sent to your email';
+
+            return redirect()
+                ->back()
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Failed to resend OTP. Please try again.']);
         }
     }
 }
