@@ -1196,7 +1196,45 @@ class TheHelper
 
     public static function is_mobile()
     {
-        return preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+        // List of mobile devices and their identifiers
+        $mobile_agents = [
+            'Mobile',
+            'Android',
+            'iPhone',
+            'iPad',
+            'Windows Phone',
+            'webOS',
+            'BlackBerry',
+            'iPod',
+            'Opera Mini',
+            'Opera Mobi'
+        ];
+
+        // Check if any of the mobile identifiers exist in the user agent
+        foreach ($mobile_agents as $device) {
+            if (stripos($user_agent, $device) !== false) {
+                return true;
+            }
+        }
+
+        // Additional check for Android tablets
+        if (stripos($user_agent, 'Android') !== false && stripos($user_agent, 'Mobile') === false) {
+            return true;
+        }
+
+        // Check for common mobile browser headers
+        if (
+            isset($_SERVER['HTTP_ACCEPT']) &&
+            (strpos($_SERVER['HTTP_ACCEPT'], 'application/vnd.wap.xhtml+xml') !== false ||
+                strpos($_SERVER['HTTP_ACCEPT'], 'text/vnd.wap.wml') !== false ||
+                strpos($_SERVER['HTTP_ACCEPT'], 'application/x-obml2d') !== false)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     public static function expand_url($url)
@@ -1310,7 +1348,7 @@ class TheHelper
     {
         if (!in_array(($num % 100), array(11, 12, 13))) {
             switch ($num % 10) {
-                    // Handle 1st, 2nd, 3rd
+                // Handle 1st, 2nd, 3rd
                 case 1:
                     return $num . 'st';
                 case 2:
@@ -1346,10 +1384,11 @@ class TheHelper
         return 'https://flagsapi.com/' . strtoupper($country_code_two_letter) . '/flat/64.png';
     }
 
-    public static function containsURL($input) {
+    public static function containsURL($input)
+    {
         // Regular expression untuk mendeteksi URL, termasuk URL pendek
         $urlPattern = '/\b((https?:\/\/|www\.)?[a-z0-9.-]+\.[a-z]{2,}(:[0-9]{1,5})?(\/[^\s]*)?)/i';
-    
+
         // Cek apakah string mengandung URL
         if (preg_match($urlPattern, $input)) {
             return true; // URL ditemukan

@@ -23,7 +23,7 @@ Route::post('/language/switch', [LanguageController::class, 'switch'])->name('la
 
 Route::group([
     'prefix' => '{market}/{lang}',
-    'middleware' => ['web', \App\Http\Middleware\SetLocale::class]
+    'middleware' => ['web', 'mobile.only', \App\Http\Middleware\SetLocale::class]
 ], function () {
     // Route::get('/homie', [SiteController::class, 'index'])->name('web.home');
     // Route::get('/faq', [SiteController::class, 'faq'])->name('web.faq');

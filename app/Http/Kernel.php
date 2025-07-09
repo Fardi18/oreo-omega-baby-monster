@@ -34,6 +34,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\DeviceDetection::class, // Add device detection middleware
         ],
 
         'api' => [
@@ -63,5 +64,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'auth.admin' => \App\Http\Middleware\AuthAdmin::class,
         'file.permission' => \App\Http\Middleware\CheckFilePermission::class,
+        'mobile.only' => \App\Http\Middleware\DeviceDetection::class,
     ];
 }

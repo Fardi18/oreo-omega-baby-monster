@@ -69,7 +69,9 @@ Route::get('/', function () {
     return redirect('/en/en');
 });
 
+// Desktop version route
+Route::get('/desktop', [App\Http\Controllers\DesktopController::class, 'index'])->name('desktop.index');
+
 foreach (File::allFiles(__DIR__ . '/routelist') as $route_file) {
     require $route_file->getPathname();
 }
-
