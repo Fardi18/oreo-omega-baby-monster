@@ -103,7 +103,7 @@ class PreLaunchController extends Controller
 
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Invalid input detected.'])
+                ->withErrors(['error' => __('messages.errors.invalid_input')])
                 ->withInput();
         }
 
@@ -122,7 +122,7 @@ class PreLaunchController extends Controller
             if ($blocked_email) {
                 return redirect()
                     ->back()
-                    ->withErrors(['email' => 'This email address has been blocked.'])
+                    ->withErrors(['email' => __('messages.validation.email.blocked')])
                     ->withInput();
             }
         }
@@ -132,28 +132,28 @@ class PreLaunchController extends Controller
             if ($blocked_phone) {
                 return redirect()
                     ->back()
-                    ->withErrors(['phone_number' => 'This phone number has been blocked.'])
+                    ->withErrors(['phone_number' => __('messages.validation.phone_number.blocked')])
                     ->withInput();
             }
         }
 
         $message = [
-            'first_name.required' => 'First name is required.',
-            'last_name.required' => 'Last name is required.',
-            'email.email' => 'Email must be a valid email address.',
-            'email.unique' => 'Email has already been taken.',
-            'phone_number.unique' => 'Phone number has already been taken.',
-            'date_of_birth.date' => 'Date of birth must be a valid date.',
-            'market_id.required' => 'Market is required.',
+            'first_name.required' => __('messages.validation.first_name.required'),
+            'last_name.required' => __('messages.validation.last_name.required'),
+            'email.email' => __('messages.validation.email.email'),
+            'email.unique' => __('messages.validation.email.unique'),
+            'phone_number.unique' => __('messages.validation.phone_number.unique'),
+            'date_of_birth.date' => __('messages.validation.date_of_birth.date'),
+            'market_id.required' => __('messages.validation.market_id.required'),
         ];
 
         $names = [
-            'first_name' => 'First Name',
-            'last_name' => 'Last Name',
-            'email' => 'Email',
-            'phone_number' => 'Phone Number',
-            'date_of_birth' => 'Date of Birth',
-            'market_id' => 'Market',
+            'first_name' => __('First Name'),
+            'last_name' => __('Last Name'),
+            'email' => __('Email'),
+            'phone_number' => __('Phone Number'),
+            'date_of_birth' => __('Date of Birth'),
+            'market_id' => __('Market'),
         ];
 
         $validator = Validator::make($request->all(), $rules, $message, $names);
@@ -171,7 +171,7 @@ class PreLaunchController extends Controller
             if (!$first_name) {
                 return redirect()
                     ->back()
-                    ->withErrors(['first_name' => 'First name is required.'])
+                    ->withErrors(['first_name' => __('messages.validation.first_name.required')])
                     ->withInput();
             }
 
@@ -179,7 +179,7 @@ class PreLaunchController extends Controller
             if (!$last_name) {
                 return redirect()
                     ->back()
-                    ->withErrors(['last_name' => 'Last name is required.'])
+                    ->withErrors(['last_name' => __('messages.validation.last_name.required')])
                     ->withInput();
             }
 
@@ -189,7 +189,7 @@ class PreLaunchController extends Controller
                 if (!$phone_number) {
                     return redirect()
                         ->back()
-                        ->withErrors(['phone_number' => 'Phone number is invalid.'])
+                        ->withErrors(['phone_number' => __('messages.validation.phone_number.invalid')])
                         ->withInput();
                 }
             }
@@ -200,7 +200,7 @@ class PreLaunchController extends Controller
                 if (!$email) {
                     return redirect()
                         ->back()
-                        ->withErrors(['email' => 'Phone number is invalid.'])
+                        ->withErrors(['email' => __('messages.validation.email.invalid')])
                         ->withInput();
                 }
             }
@@ -216,7 +216,7 @@ class PreLaunchController extends Controller
                 if (!$date_of_birth) {
                     return redirect()
                         ->back()
-                        ->withErrors(['date_of_birth' => 'Date of birth is invalid.'])
+                        ->withErrors(['date_of_birth' => __('messages.validation.date_of_birth.invalid')])
                         ->withInput();
                 }
             }
@@ -225,7 +225,7 @@ class PreLaunchController extends Controller
             if ($date_of_birth && $date_of_birth > $now) {
                 return redirect()
                     ->back()
-                    ->withErrors(['date_of_birth' => 'Date of birth must be in the past.'])
+                    ->withErrors(['date_of_birth' => __('messages.validation.date_of_birth.future')])
                     ->withInput();
             }
 
@@ -235,7 +235,7 @@ class PreLaunchController extends Controller
                 if ($age < 18) {
                     return redirect()
                         ->back()
-                        ->withErrors(['date_of_birth' => 'You must be at least 18 years old to register.'])
+                        ->withErrors(['date_of_birth' => __('messages.validation.date_of_birth.underage')])
                         ->withInput();
                 }
             }
@@ -248,7 +248,7 @@ class PreLaunchController extends Controller
                 if (!$market) {
                     return redirect()
                         ->back()
-                        ->withErrors(['market_id' => 'Market not Found'])
+                        ->withErrors(['market_id' => __('messages.validation.market_id.not_found')])
                         ->withInput();
                 }
 
@@ -290,9 +290,9 @@ class PreLaunchController extends Controller
 
             $redirect_message = '';
             if ($otp->type == 'phone') {
-                $redirect_message = 'Check your message and enter the code below';
+                $redirect_message = __('messages.success.otp_phone');
             } else {
-                $redirect_message = 'Check your email and enter the code below';
+                $redirect_message = __('messages.success.otp_email');
             }
 
             // generate the object id for the user
@@ -329,7 +329,7 @@ class PreLaunchController extends Controller
                     'market' => $market,
                     'lang' => $lang,
                 ])
-                ->withErrors(['id' => 'Invalid ID']);
+                ->withErrors(['id' => __('messages.errors.invalid_id')]);
         }
 
         // Check if the user exists
@@ -340,7 +340,7 @@ class PreLaunchController extends Controller
                     'market' => $market,
                     'lang' => $lang,
                 ])
-                ->withErrors(['id' => 'User not found']);
+                ->withErrors(['id' => __('messages.errors.user_not_found')]);
         }
 
         return view('web.verify-otp', compact('user', 'market', 'lang', 'raw_id'));
@@ -360,7 +360,7 @@ class PreLaunchController extends Controller
                     'market' => $market,
                     'lang' => $lang,
                 ])
-                ->withErrors(['id' => 'Invalid ID']);
+                ->withErrors(['id' => __('messages.errors.invalid_id')]);
         }
 
         // Check if the user exists
@@ -371,7 +371,7 @@ class PreLaunchController extends Controller
                     'market' => $market,
                     'lang' => $lang,
                 ])
-                ->withErrors(['id' => 'User not found']);
+                ->withErrors(['id' => __('messages.errors.user_not_found')]);
         }
 
         // check if the user is already verified
@@ -382,7 +382,7 @@ class PreLaunchController extends Controller
                     'lang' => $lang,
                     'id' => $raw_id
                 ])
-                ->withErrors(['id' => 'User already verified']);
+                ->withErrors(['id' => __('messages.errors.user_already_verified')]);
         }
 
         // check if the user is active
@@ -393,7 +393,7 @@ class PreLaunchController extends Controller
                     'lang' => $lang,
                     'id' => $raw_id
                 ])
-                ->withErrors(['id' => 'User already active']);
+                ->withErrors(['id' => __('messages.errors.user_already_active')]);
         }
 
         $rules = [
@@ -401,13 +401,14 @@ class PreLaunchController extends Controller
         ];
 
         $message = [
-            'otp.required' => 'OTP is required.',
-            'otp.digits' => 'OTP must be 4 digits.',
+            'otp.required' => __('messages.validation.otp.required'),
+            'otp.digits' => __('messages.validation.otp.digits'),
         ];
 
         $names = [
-            'otp' => 'OTP',
+            'otp' => __('OTP'),
         ];
+
         $validator = Validator::make($request->all(), $rules, $message, $names);
         if ($validator->fails()) {
             return redirect()
@@ -425,14 +426,14 @@ class PreLaunchController extends Controller
             if (!$otp) {
                 return redirect()
                     ->back()
-                    ->withErrors(['otp' => 'Invalid OTP'])
+                    ->withErrors(['otp' => __('messages.validation.otp.invalid')])
                     ->withInput();
             }
 
             if ($otp->expires_at < now()) {
                 return redirect()
                     ->back()
-                    ->withErrors(['otp' => 'OTP has been expired'])
+                    ->withErrors(['otp' => __('messages.validation.otp.expired')])
                     ->withInput();
             }
 
@@ -458,7 +459,7 @@ class PreLaunchController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'An error occurred while verifying the OTP.'])
+                ->withErrors(['error' => __('messages.errors.verify_otp_error')])
                 ->withInput();
         }
     }
@@ -477,7 +478,7 @@ class PreLaunchController extends Controller
                     'market' => $market,
                     'lang' => $lang,
                 ])
-                ->withErrors(['id' => 'Invalid ID']);
+                ->withErrors(['id' => __('messages.errors.invalid_id')]);
         }
 
         // Check if the user exists
@@ -488,7 +489,7 @@ class PreLaunchController extends Controller
                     'market' => $market,
                     'lang' => $lang,
                 ])
-                ->withErrors(['id' => 'User not found']);
+                ->withErrors(['id' => __('messages.errors.user_not_found')]);
         }
 
         try {
@@ -511,8 +512,8 @@ class PreLaunchController extends Controller
             DB::commit();
 
             $message = $otp->type == 'phone'
-                ? 'New OTP has been sent to your phone'
-                : 'New OTP has been sent to your email';
+                ? __('messages.success.otp_resent_phone')
+                : __('messages.success.otp_resent_email');
 
             return redirect()
                 ->back()
@@ -521,7 +522,7 @@ class PreLaunchController extends Controller
             DB::rollBack();
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Failed to resend OTP. Please try again.']);
+                ->withErrors(['error' => __('messages.errors.resend_otp_error')]);
         }
     }
 
@@ -539,7 +540,7 @@ class PreLaunchController extends Controller
                     'market' => $market,
                     'lang' => $lang,
                 ])
-                ->withErrors(['id' => 'Invalid ID']);
+                ->withErrors(['id' => __('messages.errors.invalid_id')]);
         }
 
         // Check if the user exists and is verified
@@ -553,7 +554,7 @@ class PreLaunchController extends Controller
                     'market' => $market,
                     'lang' => $lang,
                 ])
-                ->withErrors(['id' => 'Invalid access']);
+                ->withErrors(['id' => __('messages.errors.invalid_access')]);
         }
 
         return view('web.success_page', compact('user', 'market', 'lang', 'raw_id'));
