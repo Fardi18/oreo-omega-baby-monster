@@ -1,12 +1,6 @@
 <?php
 
 return [
-    'welcome' => 'Selamat datang di website kami',
-    'home' => 'Beranda',
-    'about' => 'Tentang Kami',
-    'contact' => 'Kontak',
-    'faq' => 'FAQ',
-    'language' => 'Bahasa',
     'validation' => [
         'first_name' => [
             'required' => 'Nama depan wajib diisi.'
@@ -17,12 +11,14 @@ return [
         'email' => [
             'email' => 'Email harus berupa alamat email yang valid.',
             'unique' => 'Email sudah digunakan.',
-            'blocked' => 'Alamat email ini telah diblokir.'
+            'blocked' => 'Alamat email ini telah diblokir.',
+            'used_in_another_market' => 'Email ini sudah digunakan di pasar lain.'
         ],
         'phone_number' => [
             'unique' => 'Nomor telepon sudah digunakan.',
             'invalid' => 'Nomor telepon tidak valid.',
-            'blocked' => 'Nomor telepon ini telah diblokir.'
+            'blocked' => 'Nomor telepon ini telah diblokir.',
+            'used_in_another_market' => 'Nomor telepon ini sudah digunakan di pasar lain.'
         ],
         'date_of_birth' => [
             'date' => 'Tanggal lahir harus berupa tanggal yang valid.',
@@ -38,6 +34,10 @@ return [
             'digits' => 'OTP harus 4 digit.',
             'invalid' => 'OTP tidak valid',
             'expired' => 'OTP telah kedaluwarsa'
+        ],
+        'pin' => [
+            'required' => 'PIN wajib diisi.',
+            'digits' => 'PIN harus 4 digit.',
         ],
     ],
     'errors' => [

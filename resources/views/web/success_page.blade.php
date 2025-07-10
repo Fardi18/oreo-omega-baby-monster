@@ -73,6 +73,15 @@
                 Stay tuned!
             </div>
 
+            @if ($user->type == 'post-launch' && $user->pin == null)
+                <div class="confirmation-box">
+                    <strong>Next Step:</strong>
+                    <p>To complete your registration, please create a 4-digit PIN.</p>
+                    <a href="{{ route('web.create_pin_page', ['market' => $market, 'lang' => $lang, 'id' => $raw_id]) }}"
+                        class="btn btn-primary">Create PIN</a>
+                </div>
+            @endif
+
             <div class="footer">
                 Terms & Condition | Privacy Polish | Cookie Policy | Contact Us<br>
                 © 2025 Mondelēz International – All rights reserved

@@ -1,12 +1,6 @@
 <?php
 
 return [
-    'welcome' => 'Chào mừng đến với trang web của chúng tôi',
-    'home' => 'Trang chủ',
-    'about' => 'Về chúng tôi',
-    'contact' => 'Liên hệ',
-    'faq' => 'Câu hỏi thường gặp',
-    'language' => 'Ngôn ngữ',
     'validation' => [
         'first_name' => [
             'required' => 'Tên không được để trống.'
@@ -17,12 +11,14 @@ return [
         'email' => [
             'email' => 'Email phải là địa chỉ email hợp lệ.',
             'unique' => 'Email đã được sử dụng.',
-            'blocked' => 'Địa chỉ email này đã bị chặn.'
+            'blocked' => 'Địa chỉ email này đã bị chặn.',
+            'used_in_another_market' => 'Email này đã được sử dụng trong một thị trường khác.'
         ],
         'phone_number' => [
             'unique' => 'Số điện thoại đã được sử dụng.',
             'invalid' => 'Số điện thoại không hợp lệ.',
-            'blocked' => 'Số điện thoại này đã bị chặn.'
+            'blocked' => 'Số điện thoại này đã bị chặn.',
+            'used_in_another_market' => 'Số điện thoại này đã được sử dụng trong một thị trường khác.'
         ],
         'date_of_birth' => [
             'date' => 'Ngày sinh phải là ngày hợp lệ.',
@@ -38,6 +34,10 @@ return [
             'digits' => 'Mã OTP phải có 4 chữ số.',
             'invalid' => 'Mã OTP không hợp lệ',
             'expired' => 'Mã OTP đã hết hạn'
+        ],
+        'pin' => [
+            'required' => 'Mã PIN không được để trống.',
+            'digits' => 'Mã PIN phải có 4 chữ số.',
         ],
     ],
     'errors' => [

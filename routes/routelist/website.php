@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\LanguageController;
+use App\Http\Controllers\Web\PostLaunchController;
 use App\Http\Controllers\Web\PreLaunchController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,10 +36,18 @@ Route::group([
     // Pre-Launch
     Route::post('/pre-launch', [PreLaunchController::class, 'register_pre_launch'])->name('web.register_pre_launch');
 
+    // Post-Launch
+    Route::get('/post-launch', [PostLaunchController::class, 'register_post_launch_page'])->name('web.register_post_launch_page');
+    Route::post('/post-launch', [PostLaunchController::class, 'register_post_launch_process'])->name('web.register_post_launch_process');
+
     // OTP
     Route::get('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_page'])->name('web.verify_otp_page');
     Route::post('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_process'])->name('web.verify_otp_process');
     Route::post('/resend-otp/{id}', [PreLaunchController::class, 'resend_otp'])->name('web.resend_otp');
+
+    // Create PIN Page
+    Route::get('/create-pin/{id}', [PostLaunchController::class, 'create_pin_page'])->name('web.create_pin_page');
+    Route::post('/create-pin/{id}', [PostLaunchController::class, 'set_pin'])->name('web.set_pin');
 
     // Success Page
     Route::get('/success/{id}', [PreLaunchController::class, 'success_page'])->name('web.success_page');

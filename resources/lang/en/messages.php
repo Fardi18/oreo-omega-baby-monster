@@ -1,12 +1,6 @@
 <?php
 
 return [
-    'welcome' => 'Welcome to our website',
-    'home' => 'Home',
-    'about' => 'About Us',
-    'contact' => 'Contact',
-    'faq' => 'FAQ',
-    'language' => 'Language',
     'validation' => [
         'first_name' => [
             'required' => 'First name is required.'
@@ -17,12 +11,14 @@ return [
         'email' => [
             'email' => 'Email must be a valid email address.',
             'unique' => 'Email has already been taken.',
-            'blocked' => 'This email address has been blocked.'
+            'blocked' => 'This email address has been blocked.',
+            'used_in_another_market' => 'This email is already used in another market.'
         ],
         'phone_number' => [
             'unique' => 'Phone number has already been taken.',
             'invalid' => 'Phone number is invalid.',
-            'blocked' => 'This phone number has been blocked.'
+            'blocked' => 'This phone number has been blocked.',
+            'used_in_another_market' => 'This phone number is already used in another market.'
         ],
         'date_of_birth' => [
             'date' => 'Date of birth must be a valid date.',
@@ -38,6 +34,10 @@ return [
             'digits' => 'OTP must be 4 digits.',
             'invalid' => 'Invalid OTP',
             'expired' => 'OTP has been expired'
+        ],
+        'pin' => [
+            'required' => 'PIN is required.',
+            'digits' => 'PIN must be 4 digits.',
         ],
     ],
     'errors' => [
