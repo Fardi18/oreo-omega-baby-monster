@@ -1,8 +1,7 @@
 @extends('_template_web.master')
 
 @php
-    $pagetitle = 'Home';
-    $locale = app()->getLocale();
+    $pagetitle = 'Post-Launch Registration';
 @endphp
 
 @section('title', $pagetitle)
@@ -32,6 +31,13 @@
             margin-bottom: 20px;
         }
 
+        .placeholder-image {
+            width: 100%;
+            height: 120px;
+            background-color: #ddd;
+            margin-bottom: 10px;
+        }
+
         .landing-page input[type="text"],
         .landing-page input[type="email"],
         .landing-page select {
@@ -44,16 +50,7 @@
             background-color: #fff;
         }
 
-        .phone-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .name-group {
-            display: flex;
-            gap: 10px;
-        }
-
+        .phone-group,
         .dob-group {
             display: flex;
             gap: 10px;
@@ -62,26 +59,23 @@
         .landing-page button {
             background-color: black;
             color: white;
-            padding: 10px 0;
+            padding: 10px;
             border: none;
-            width: 100%;
             border-radius: 20px;
-            margin: 10px 0;
+            width: 100%;
             font-size: 16px;
-            cursor: pointer;
-            position: relative;
+            margin-top: 10px;
         }
 
         .landing-page button:disabled {
-            background-color: #cccccc;
+            background-color: #ccc;
             cursor: not-allowed;
-            opacity: 0.7;
         }
 
         .checkbox-group {
             text-align: left;
             font-size: 14px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .checkbox-group label {
@@ -89,18 +83,18 @@
             margin: 5px 0;
         }
 
-        .social-section {
+        .login-link {
+            margin-top: 10px;
             font-size: 14px;
         }
 
-        .social-icons img {
-            width: 40px;
-            margin: 5px;
+        .login-link a {
+            color: #007bff;
+            text-decoration: none;
         }
 
-        .footer-links {
-            font-size: 12px;
-            margin-top: 10px;
+        .login-link a:hover {
+            text-decoration: underline;
         }
     </style>
 @endsection
@@ -109,22 +103,16 @@
     <section>
         <div class="landing-page">
             <h2>Oreo Baby Monster</h2>
-            <p>{{ __('landing_page.subtitle-1') }}<br>{{ __('landing_page.subtitle-2') }}</p>
+            <p>Participate to Win The Prizes and Get Your Baby Monster Digital Photo Card now</p>
 
-            @if ($errors->any())
-                <script>
-                    alert(`{!! implode('\n', $errors->all()) !!}`);
-                </script>
-            @endif
+            <div class="placeholder-image"></div>
+            <p><strong>Win Sweetest K-Pop Adventure</strong> by Submitting your Receipt</p>
 
-            @if (session('success'))
-                <script>
-                    alert(`{{ session('success') }}`);
-                </script>
-            @endif
+            <div class="placeholder-image"></div>
+            <p>Create Your Personalized Original Photo Card</p>
 
             <form
-                action="{{ route('web.register_pre_launch', ['market' => request()->segment(1), 'lang' => request()->segment(2)]) }}"
+                action="{{ route('web.register_post_launch_process', ['market' => request()->segment(1), 'lang' => request()->segment(2)]) }}"
                 method="POST">
                 @csrf
                 <div class="phone-group">
@@ -177,30 +165,17 @@
                     </select>
                 </div>
 
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="terms" required> Terms & Condition</label>
+                    <label><input type="checkbox" id="privacy" required> Privacy Policy</label>
+                    <label><input type="checkbox" id="marketing" required> Marketing Communication</label>
+                </div>
+
+
                 <button type="submit" id="submit-button">
                     Submit
                 </button>
             </form>
-
-            <div class="checkbox-group">
-                <label><input type="checkbox" id="terms" required> Term & Condition</label>
-                <label><input type="checkbox" id="privacy" required> Privacy Polish</label>
-                <label><input type="checkbox" id="marketing" required> Marketing Communication</label>
-            </div>
-
-            <div class="social-section">
-                or Follow our <strong>social media</strong> Channels to get an update when the activity run
-                <div class="social-icons">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Oreo IG">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
-                        alt="Oreo FB">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="Oreo YouTube">
-                </div>
-            </div>
-
-            <div class="footer-links">
-                Terms & Condition | Privacy Polish | Cookie Policy | Contact Us
-            </div>
         </div>
     </section>
 @endsection
@@ -272,6 +247,12 @@
                     });
 
                     document.body.appendChild(tempForm);
+                    const refererInput = document.createElement('input');
+                    refererInput.type = 'hidden';
+                    refererInput.name = 'referer_url';
+                    refererInput.value = window.location.pathname;
+                    tempForm.appendChild(refererInput);
+
                     tempForm.submit();
                 });
 

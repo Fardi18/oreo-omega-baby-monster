@@ -23,7 +23,7 @@ class PostLaunchController extends Controller
             ->orderBy('country_name', 'asc')
             ->get();
 
-        return view('web.post-launch', compact('markets'));
+        return view('web.post_launch.register', compact('markets'));
     }
 
     private function hasForbiddenContent($text)
