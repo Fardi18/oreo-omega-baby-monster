@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
 use Symfony\Component\HttpFoundation\Response;
 
 // Models
@@ -16,6 +17,26 @@ class SetLocale
     {
         $marketAlias = strtolower($request->segment(1));
         $locale = strtolower($request->segment(2));
+
+        // Check if user is logged in via session
+        $userMarket = Session::get(env('SESSION_MARKET', 'user_market'));
+
+        if ($userMarket) {
+            // If trying to access different market, silently redirect to user's market
+            if (strtolower($marketAlias) !== strtolower($userMarket)) {
+                // Get all segments after market and locale
+                $segments = $request->segments();
+                $remainingPath = array_slice($segments, 2);
+
+                // Build the new path with user's market but keep the rest of the URL
+                $newPath = '/' . strtolower($userMarket) . '/' . $locale;
+                if (!empty($remainingPath)) {
+                    $newPath .= '/' . implode('/', $remainingPath);
+                }
+
+                return redirect($newPath);
+            }
+        }
 
         if ($marketAlias === 'en') {
             // Treat "en" as a default virtual market
