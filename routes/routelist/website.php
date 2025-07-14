@@ -34,7 +34,8 @@ Route::group([
     Route::get('/', [SiteController::class, 'landing_page'])->name('web.landing_page');
 
     // Pre-Launch
-    Route::post('/pre-launch', [PreLaunchController::class, 'register_pre_launch'])->name('web.register_pre_launch');
+    Route::get('/pre-launch', [PreLaunchController::class, 'register_pre_launch_page'])->name('web.register_pre_launch_page');
+    Route::post('/pre-launch', [PreLaunchController::class, 'register_pre_launch_process'])->name('web.register_pre_launch_process');
 
     // Post-Launch
     Route::get('/post-launch', [PostLaunchController::class, 'register_post_launch_page'])->name('web.register_post_launch_page');

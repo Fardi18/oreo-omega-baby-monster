@@ -16,6 +16,15 @@ use Illuminate\Support\Facades\Validator;
 
 class PreLaunchController extends Controller
 {
+    public function register_pre_launch_page()
+    {
+        $markets = country::where('status', 1)
+            ->orderBy('country_name', 'asc')
+            ->get();
+
+        return view('web.pre_launch.register', compact('markets'));
+    }
+
     private function hasForbiddenContent($text)
     {
         // List of forbidden words/patterns
@@ -92,7 +101,7 @@ class PreLaunchController extends Controller
         }
     }
 
-    public function register_pre_launch(Request $request)
+    public function register_pre_launch_process(Request $request)
     {
         // Check for forbidden content in names
         if ($this->hasForbiddenContent($request->first_name) || $this->hasForbiddenContent($request->last_name)) {
@@ -343,7 +352,7 @@ class PreLaunchController extends Controller
                 ->withErrors(['id' => __('messages.errors.user_not_found')]);
         }
 
-        return view('web.verify-otp', compact('user', 'market', 'lang', 'raw_id'));
+        return view('web.otp.verify_otp', compact('user', 'market', 'lang', 'raw_id'));
     }
 
     public function verify_otp_process($market, $lang, $id, Request $request)

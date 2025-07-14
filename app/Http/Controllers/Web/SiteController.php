@@ -116,11 +116,7 @@ class SiteController extends Controller
     }
 
     public function landing_page(){
-        $markets = country::where('status', 1)
-            ->orderBy('country_name', 'asc')
-            ->get();
-
-        return view('web.landing_page', compact('markets'));
+        return view('web.landing_page');
     }
 
     public function welcome()

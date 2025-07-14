@@ -367,7 +367,7 @@ class PostLaunchController extends Controller
                 ->withErrors(['id' => __('messages.errors.invalid_access')]);
         }
 
-        return view('web.create_pin', compact('user', 'market', 'lang', 'raw_id'));
+        return view('web.post_launch.create_pin', compact('user', 'market', 'lang', 'raw_id'));
     }
 
     public function set_pin(Request $request, $market, $lang, $id)
