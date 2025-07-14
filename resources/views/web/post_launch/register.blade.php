@@ -111,6 +111,18 @@
             <div class="placeholder-image"></div>
             <p>Create Your Personalized Original Photo Card</p>
 
+            @if ($errors->any())
+                <script>
+                    alert(`{!! implode('\n', $errors->all()) !!}`);
+                </script>
+            @endif
+
+            @if (session('success'))
+                <script>
+                    alert(`{{ session('success') }}`);
+                </script>
+            @endif
+
             <form
                 action="{{ route('web.register_post_launch_process', ['market' => request()->segment(1), 'lang' => request()->segment(2)]) }}"
                 method="POST">

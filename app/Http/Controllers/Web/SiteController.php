@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 // Libraries
 use App\Libraries\Helper;
@@ -120,5 +121,10 @@ class SiteController extends Controller
             ->get();
 
         return view('web.landing_page', compact('markets'));
+    }
+
+    public function welcome()
+    {
+        return view('web.welcome');
     }
 }

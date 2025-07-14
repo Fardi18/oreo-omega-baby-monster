@@ -82,6 +82,15 @@
                 </div>
             @endif
 
+            @if ($user->verified_at != null && $user->pin != null)
+                <div class="confirmation-box">
+                    <strong>Next Step:</strong>
+                    <p>Use your email address/phone number and PIN to login</p>
+                    <a href="{{ route('web.login_page', ['market' => $market, 'lang' => $lang, 'id' => $raw_id]) }}"
+                        class="btn btn-primary">Login</a>
+                </div>
+            @endif
+
             <div class="footer">
                 Terms & Condition | Privacy Polish | Cookie Policy | Contact Us<br>
                 © 2025 Mondelēz International – All rights reserved

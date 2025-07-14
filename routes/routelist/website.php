@@ -39,6 +39,8 @@ Route::group([
     // Post-Launch
     Route::get('/post-launch', [PostLaunchController::class, 'register_post_launch_page'])->name('web.register_post_launch_page');
     Route::post('/post-launch', [PostLaunchController::class, 'register_post_launch_process'])->name('web.register_post_launch_process');
+    Route::get('/login', [PostLaunchController::class, 'login_page'])->name('web.login_page');
+    Route::post('/login', [PostLaunchController::class, 'login_process'])->name('web.login_process');
 
     // OTP
     Route::get('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_page'])->name('web.verify_otp_page');
@@ -51,4 +53,13 @@ Route::group([
 
     // Success Page
     Route::get('/success/{id}', [PreLaunchController::class, 'success_page'])->name('web.success_page');
+
+    // use the middleware to check if the user is logged in
+    Route::group(['middleware' => ['auth.session']], function () {
+        // Welcome Page
+        Route::get('/welcome', [SiteController::class, 'welcome'])->name('web.welcome');
+
+        // Logout
+        Route::get('/logout', [PostLaunchController::class, 'logout'])->name('web.logout');
+    });
 });

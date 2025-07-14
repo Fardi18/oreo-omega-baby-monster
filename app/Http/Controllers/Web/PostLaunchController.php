@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Session;
+
+// Libraries
+use App\Libraries\Helper;
 
 // Models
 use App\Models\user;
 use App\Models\country;
-use App\Models\user_otp;
 
-// Libraries
-use App\Libraries\Helper;
 
 class PostLaunchController extends Controller
 {
@@ -353,7 +354,6 @@ class PostLaunchController extends Controller
         }
     }
 
-    // create pin page
     public function create_pin_page(Request $request, $market, $lang, $id)
     {
         $raw_id = $id;
@@ -398,10 +398,15 @@ class PostLaunchController extends Controller
 
         $validator = Validator::make($request->all(), $rules, $message, $names);
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        $user->pin = $request->pin;
+        $encrypted_pin = Helper::hashing_this($request->pin);
+
+        $user->pin = $encrypted_pin;
         $user->save();
 
         return redirect()->route('web.success_page', [
@@ -409,5 +414,109 @@ class PostLaunchController extends Controller
             'lang'   => $lang,
             'id'     => $raw_id
         ])->with('success', __('messages.success.pin_set'));
+    }
+
+    public function login_page(Request $request, $market, $lang)
+    {
+        
+        $markets = country::where('status', 1)
+            ->orderBy('country_name', 'asc')
+            ->get();
+
+        return view('web.post_launch.login', compact('markets', 'market', 'lang'));
+    }
+
+    public function login_process(Request $request, $market, $lang)
+    {
+        $rules = [
+            'email_or_phone_number' => 'required|string|max:255',
+            'pin' => 'required|digits:4',
+        ];
+
+        $message = [
+            'email_or_phone_number.required' => __('messages.validation.email_or_phone_number.required'),
+            'email_or_phone_number.string' => __('messages.validation.email_or_phone_number.string'),
+            'email_or_phone_number.max' => __('messages.validation.email_or_phone_number.max'),
+            'pin.required' => __('messages.validation.pin.required'),
+            'pin.digits' => __('messages.validation.pin.digits'),
+        ];
+
+        $names = [
+            'email_or_phone_number' => __('Email or Phone Number'),
+            'pin' => __('PIN'),
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $message, $names);
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $input = $request->input('email_or_phone_number');
+            if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
+                $user = user::where('email', $input)->first();
+            } else {
+                $user = user::where('phone_number', $input)->first();
+            }
+
+            if (!$user || !$user->is_active || !$user->verified_at) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['error' => __('messages.errors.invalid_access')])
+                    ->withInput();
+            }
+
+            if (!password_verify($request->pin, $user->pin)) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['pin' => __('messages.validation.pin.invalid')])
+                    ->withInput();
+            }
+
+            $marketModel = country::find($user->market_id);
+            if (!$marketModel) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['error' => __('messages.errors.invalid_market')])
+                    ->withInput();
+            }
+
+            Session::put(env('SESSION_USER', 'user'), $user);
+            Session::put(env('SESSION_MARKET', 'user_market'), strtolower($marketModel->country_alias));
+            Session::put(env('SESSION_LANGUAGE', 'user_language'), strtolower($lang));
+
+            DB::commit();
+
+            return redirect()->route('web.welcome', [
+                'market' => strtolower($marketModel->country_alias),
+                'lang' => strtolower($lang)
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            // Simpan log jika perlu: Log::error($e)
+            return redirect()
+                ->back()
+                ->withErrors(['error' => __('messages.errors.general')])
+                ->withInput();
+        }
+    }
+
+    public function logout(Request $request, $market, $lang)
+    {
+        // Clear session data
+        Session::forget(env('SESSION_USER', 'user'));
+        Session::forget(env('SESSION_MARKET', 'user_market'));
+        Session::forget(env('SESSION_LANGUAGE', 'user_language'));
+
+        return redirect()->route('web.login_page', [
+            'market' => strtolower($market),
+            'lang' => strtolower($lang)
+        ])->with('success', __('messages.success.logout'));
     }
 }
