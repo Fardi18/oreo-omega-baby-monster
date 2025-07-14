@@ -370,7 +370,7 @@ class PostLaunchController extends Controller
         return view('web.post_launch.create_pin', compact('user', 'market', 'lang', 'raw_id'));
     }
 
-    public function set_pin(Request $request, $market, $lang, $id)
+    public function create_pin_process(Request $request, $market, $lang, $id)
     {
         $raw_id = $id;
         if (env('CRYPTOGRAPHY_MODE', false)) {

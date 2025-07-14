@@ -76,7 +76,7 @@
                     <div class="card shadow-lg border-0 rounded-3">
                         <div class="card-body p-4 p-md-5">
                             <form method="POST"
-                                action="{{ route('web.set_pin', ['market' => $market, 'lang' => $lang, 'id' => $raw_id]) }}"
+                                action="{{ route('web.create_pin_process', ['market' => $market, 'lang' => $lang, 'id' => $raw_id]) }}"
                                 class="needs-validation" novalidate>
                                 @csrf
                                 <div class="form-floating mb-4">

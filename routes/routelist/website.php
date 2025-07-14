@@ -26,10 +26,6 @@ Route::group([
     'prefix' => '{market}/{lang}',
     'middleware' => ['web', 'mobile.only', \App\Http\Middleware\SetLocale::class]
 ], function () {
-    // Route::get('/homie', [SiteController::class, 'index'])->name('web.home');
-    // Route::get('/faq', [SiteController::class, 'faq'])->name('web.faq');
-    // Route::get('/{slug}', [SiteController::class, 'page'])->name('web.page');
-
     // Landing Page
     Route::get('/', [SiteController::class, 'landing_page'])->name('web.landing_page');
 
@@ -40,28 +36,32 @@ Route::group([
     // Post-Launch
     Route::get('/post-launch', [PostLaunchController::class, 'register_post_launch_page'])->name('web.register_post_launch_page');
     Route::post('/post-launch', [PostLaunchController::class, 'register_post_launch_process'])->name('web.register_post_launch_process');
+
+    // Login
     Route::get('/login', [PostLaunchController::class, 'login_page'])->name('web.login_page');
     Route::post('/login', [PostLaunchController::class, 'login_process'])->name('web.login_process');
+
+    // PIN
+    Route::get('/create-pin/{id}', [PostLaunchController::class, 'create_pin_page'])->name('web.create_pin_page');
+    Route::post('/create-pin/{id}', [PostLaunchController::class, 'create_pin_process'])->name('web.create_pin_process');
     Route::get('/forgot-pin', [PostLaunchController::class, 'forgot_pin_page'])->name('web.forgot_pin_page');
     Route::post('/forgot-pin', [PostLaunchController::class, 'forgot_pin_process'])->name('web.forgot_pin_process');
-    Route::get('/forgot-pin-otp/{id}', [PostLaunchController::class, 'forgot_pin_otp_page'])->name('web.forgot_pin_otp_page');
-    Route::post('/forgot-pin-otp/{id}', [PostLaunchController::class, 'forgot_pin_otp_process'])->name('web.forgot_pin_otp_process');
 
     // OTP
     Route::get('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_page'])->name('web.verify_otp_page');
     Route::post('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_process'])->name('web.verify_otp_process');
     Route::post('/resend-otp/{id}', [PreLaunchController::class, 'resend_otp'])->name('web.resend_otp');
 
-    // Create PIN Page
-    Route::get('/create-pin/{id}', [PostLaunchController::class, 'create_pin_page'])->name('web.create_pin_page');
-    Route::post('/create-pin/{id}', [PostLaunchController::class, 'set_pin'])->name('web.set_pin');
+    // PIN AND OTP
+    Route::get('/forgot-pin-otp/{id}', [PostLaunchController::class, 'forgot_pin_otp_page'])->name('web.forgot_pin_otp_page');
+    Route::post('/forgot-pin-otp/{id}', [PostLaunchController::class, 'forgot_pin_otp_process'])->name('web.forgot_pin_otp_process');
 
-    // Success Page
+    // Success
     Route::get('/success/{id}', [PreLaunchController::class, 'success_page'])->name('web.success_page');
 
-    // use the middleware to check if the user is logged in
+    // Only for authenticated users
     Route::group(['middleware' => ['auth.session']], function () {
-        // Welcome Page
+        // Welcome
         Route::get('/welcome', [SiteController::class, 'welcome'])->name('web.welcome');
 
         // Logout
