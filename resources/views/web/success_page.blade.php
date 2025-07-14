@@ -86,7 +86,7 @@
                 <div class="confirmation-box">
                     <strong>Next Step:</strong>
                     <p>Use your email address/phone number and PIN to login</p>
-                    <a href="{{ route('web.login_page', ['market' => $market, 'lang' => $lang, 'id' => $raw_id]) }}"
+                    <a href="{{ route('web.login_page', ['market' => $market, 'lang' => $lang]) }}"
                         class="btn btn-primary">Login</a>
                 </div>
             @endif

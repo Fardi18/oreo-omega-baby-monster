@@ -324,7 +324,7 @@ class PostLaunchController extends Controller
             DB::commit();
 
             // SUCCESS
-            $market = strtolower($request->segment(1));
+            $market = strtolower($user->market_alias);
             $locale = strtolower(app()->getLocale());
 
             $redirect_message = '';
@@ -418,7 +418,6 @@ class PostLaunchController extends Controller
 
     public function login_page(Request $request, $market, $lang)
     {
-        
         $markets = country::where('status', 1)
             ->orderBy('country_name', 'asc')
             ->get();
@@ -518,5 +517,235 @@ class PostLaunchController extends Controller
             'market' => strtolower($market),
             'lang' => strtolower($lang)
         ])->with('success', __('messages.success.logout'));
+    }
+
+    public function forgot_pin_page(Request $request, $market, $lang)
+    {
+        $markets = country::where('status', 1)
+            ->orderBy('country_name', 'asc')
+            ->get();
+
+        return view('web.post_launch.forgot_pin', compact('markets', 'market', 'lang'));
+    }
+
+    public function forgot_pin_process(Request $request, $market, $lang)
+    {
+        $rules = [
+            'email_or_phone_number' => 'required|string|max:255',
+        ];
+
+        $message = [
+            'email_or_phone_number.required' => __('messages.validation.email_or_phone_number.required'),
+            'email_or_phone_number.string' => __('messages.validation.email_or_phone_number.string'),
+            'email_or_phone_number.max' => __('messages.validation.email_or_phone_number.max'),
+        ];
+
+        $names = [
+            'email_or_phone_number' => __('Email or Phone Number'),
+            'pin' => __('PIN'),
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $message, $names);
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $input = $request->input('email_or_phone_number');
+            if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
+                $type = 'email';
+                $user = user::where('email', $input)->first();
+            } else {
+                $type = 'phone';
+                $user = user::where('phone_number', $input)->first();
+            }
+
+            if (!$user || !$user->is_active || !$user->verified_at) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['error' => __('messages.errors.invalid_access')])
+                    ->withInput();
+            }
+
+            // check if the user has activated their account
+            if($user->is_active == 0) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['error' => __('messages.errors.account_not_activated')])
+                    ->withInput();
+            }
+
+            // generate the new OTP
+            $otp = new \App\Models\user_otp();
+            $otp->user_id = $user->id;
+            $otp->otp = rand(1000, 9999);
+            $otp->type = $type;
+            $otp->expires_at = now()->addMinutes((int) env('OTP_EXPIRATION', 5));
+            $otp->save();
+
+            DB::commit();
+
+            // SUCCESS
+            $market = strtolower($user->market_alias);
+            $locale = strtolower(app()->getLocale());
+
+            $redirect_message = '';
+            if ($otp->type == 'phone') {
+                $redirect_message = __('messages.success.otp_phone');
+            } else {
+                $redirect_message = __('messages.success.otp_email');
+            }
+
+            // generate the object id for the user
+            $object_id = Helper::generate_token($user->id);
+
+            return redirect()
+                ->route('web.forgot_pin_otp_page', [
+                    'id' => $object_id,
+                    'market' => $market,
+                    'lang' => $locale,
+                ])
+                ->with('success', $redirect_message);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            // Simpan log jika perlu: Log::error($e)
+            return redirect()
+                ->back()
+                ->withErrors(['error' => __('messages.errors.general')])
+                ->withInput();
+        }
+    }
+
+    public function forgot_pin_otp_page($market, $lang, $id, Request $request)
+    {
+        $raw_id = $id;
+
+        if (env('CRYPTOGRAPHY_MODE', false)) {
+            $id = Helper::validate_token($id);
+        }
+
+        if ((int) $id < 1) {
+            return redirect()
+                ->route('web.login_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => __('messages.errors.invalid_id')]);
+        }
+
+        // Check if the user exists
+        $user = user::where('id', $id)->first();
+        if (!$user) {
+            return redirect()
+                ->route('web.login_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => __('messages.errors.user_not_found')]);
+        }
+
+        return view('web.post_launch.forgot_pin_otp', compact('user', 'market', 'lang', 'raw_id'));
+    }
+
+    public function forgot_pin_otp_process($market, $lang, $id, Request $request)
+    {
+        $raw_id = $id;
+
+        if (env('CRYPTOGRAPHY_MODE', false)) {
+            $id = Helper::validate_token($id);
+        }
+
+        if ((int) $id < 1) {
+            return redirect()
+                ->route('web.web.login_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => __('messages.errors.invalid_id')]);
+        }
+
+        // Check if the user exists
+        $user = user::where('id', $id)->first();
+        if (!$user) {
+            return redirect()
+                ->route('web.web.login_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                ])
+                ->withErrors(['id' => __('messages.errors.user_not_found')]);
+        }
+
+        $rules = [
+            'otp' => 'required|digits:4',
+        ];
+
+        $message = [
+            'otp.required' => __('messages.validation.otp.required'),
+            'otp.digits' => __('messages.validation.otp.digits'),
+        ];
+
+        $names = [
+            'otp' => __('OTP'),
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $message, $names);
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            // Check if the OTP is valid
+            $otp = \App\Models\user_otp::where('user_id', $id)
+                ->where('otp', $request->otp)
+                ->first();
+
+            if (!$otp) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['otp' => __('messages.validation.otp.invalid')])
+                    ->withInput();
+            }
+
+            if ($otp->expires_at < now()) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['otp' => __('messages.validation.otp.expired')])
+                    ->withInput();
+            }
+
+            // Mark the user as verified
+            $user->verified_at = date('Y-m-d H:i:s');
+            $user->is_active = 1;
+            $user->save();
+
+            // update the otp data
+            if ($otp->type == 'phone') {
+                $otp->phone_verified_at = date('Y-m-d H:i:s');
+            } else {
+                $otp->email_verified_at = date('Y-m-d H:i:s');
+            }
+            $otp->save();
+
+            return redirect()
+                ->route('web.create_pin_page', [
+                    'market' => $market,
+                    'lang' => $lang,
+                    'id' => $raw_id
+                ]);
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withErrors(['error' => __('messages.errors.verify_otp_error')])
+                ->withInput();
+        }
     }
 }

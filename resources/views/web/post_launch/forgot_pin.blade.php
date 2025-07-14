@@ -1,7 +1,7 @@
 @extends('_template_web.master')
 
 @php
-    $pagetitle = 'Login';
+    $pagetitle = 'Forgot PIN';
 @endphp
 
 @section('title', $pagetitle)
@@ -65,8 +65,8 @@
 @section('content')
     <section>
         <div class="landing-page">
-            <h2>Login</h2>
-            <p>Use your email address or phone number and PIN to login.</p>
+            <h2>Forgot PIN</h2>
+            <p>Use your email address or phone number</p>
 
             @if ($errors->any())
                 <script>
@@ -81,26 +81,17 @@
             @endif
 
             <form
-                action="{{ route('web.login_process', ['market' => request()->segment(1), 'lang' => request()->segment(2)]) }}"
+                action="{{ route('web.forgot_pin_process', ['market' => request()->segment(1), 'lang' => request()->segment(2)]) }}"
                 method="POST">
                 @csrf
                 <div>
                     <input type="text" placeholder="Your Email or Phone Number" name="email_or_phone_number" id="email_or_phone_number" required
                         value="{{ old('email_or_phone_number') }}">
                 </div>
-
-                <div>
-                    <input type="password" placeholder="Your PIN" name="pin" id="pinField" required
-                        value="{{ old('pin') }}" max="4">
-                </div>
-
                 <button type="submit" id="submit-button">
                     Submit
                 </button>
             </form>
-
-            <p style="margin-top: 20px;">
-                <a href="{{ route('web.forgot_pin_page', ['market' => request()->segment(1), 'lang' => request()->segment(2)]) }}">Forgot PIN?</a>
         </div>
     </section>
 @endsection

@@ -41,6 +41,10 @@ Route::group([
     Route::post('/post-launch', [PostLaunchController::class, 'register_post_launch_process'])->name('web.register_post_launch_process');
     Route::get('/login', [PostLaunchController::class, 'login_page'])->name('web.login_page');
     Route::post('/login', [PostLaunchController::class, 'login_process'])->name('web.login_process');
+    Route::get('/forgot-pin', [PostLaunchController::class, 'forgot_pin_page'])->name('web.forgot_pin_page');
+    Route::post('/forgot-pin', [PostLaunchController::class, 'forgot_pin_process'])->name('web.forgot_pin_process');
+    Route::get('/forgot-pin-otp/{id}', [PostLaunchController::class, 'forgot_pin_otp_page'])->name('web.forgot_pin_otp_page');
+    Route::post('/forgot-pin-otp/{id}', [PostLaunchController::class, 'forgot_pin_otp_process'])->name('web.forgot_pin_otp_process');
 
     // OTP
     Route::get('/verify-otp/{id}', [PreLaunchController::class, 'verify_otp_page'])->name('web.verify_otp_page');
